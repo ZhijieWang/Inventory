@@ -17,12 +17,14 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/jinzhu/gorm"
 	"github.com/spf13/cobra"
+	"github.com/zhijiewang/Inventory/common"
 )
 
-// ProductCmd represents the Product command
-var ProductCmd = &cobra.Command{
-	Use:   "Product",
+// productCmd represents the addProduct command
+var productCmd = &cobra.Command{
+	Use:   "product",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -30,21 +32,63 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+}
+
+func before() *gorm.DB {
+	db, err = gorm.Open("sqlite3", "/tmp/test.db")
+	if err != nil {
+		panic("failed to connect database")
+	}
+	db.AutoMigrate(common.Product{}, common.Item{})
+	return db
+}
+
+var addProductCmd = &cobra.Command{
+	Use:   "add",
+	Short: "A brief description of your command",
+	Long:  `A longer description `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Product called")
+		fmt.Println("Add product called")
+		db = before()
+		defer db.Close()
+		db.Create(&common.Product{NickName: productName, Code: code})
 	},
 }
 
+var listProductCmd = &cobra.Command{
+	Use:   "list",
+	Short: "A breif description of your command",
+	Long:  `Longer`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("List product called")
+		db = before()
+		defer db.Close()
+		res := []common.Product{}
+		db.Find(&res)
+		for _, i := range res {
+			fmt.Printf("%+v\n", i)
+		}
+	},
+}
+var productName string
+var code string
+
 func init() {
-	root.AddCommand(ProductCmd)
+	rootCmd.AddCommand(productCmd)
+	addProductCmd.Flags().StringVar(&productName, "p", "", "Name of the product, Human Friendly version")
+	addProductCmd.Flags().StringVar(&code, "c", "", "quick reference code for the product, machine friendly or easy to type")
+	addProductCmd.MarkFlagRequired("p")
+	addProductCmd.MarkFlagRequired("c")
+	productCmd.AddCommand(listProductCmd)
+	productCmd.AddCommand(addProductCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// ProductCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// productCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// ProductCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// productCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

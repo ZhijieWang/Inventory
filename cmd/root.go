@@ -18,12 +18,16 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jinzhu/gorm"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
+
+var db *gorm.DB
+var err error
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

@@ -14,8 +14,13 @@
 
 package main
 
-import "github.com/zhijiewang/Invetory/cmd"
+import (
+	"fmt"
+
+	"github.com/zhijiewang/Inventory/cmd"
+)
 
 func main() {
 	cmd.Execute()
+	fmt.Println()
 }
