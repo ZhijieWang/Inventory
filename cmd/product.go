@@ -51,7 +51,7 @@ var addProductCmd = &cobra.Command{
 		fmt.Println("Add product called")
 		db = before()
 		defer db.Close()
-		db.Create(&common.Product{NickName: productName, Code: code})
+		db.Create(&common.Product{NickName: productName, Code: productCode})
 	},
 }
 
@@ -70,13 +70,14 @@ var listProductCmd = &cobra.Command{
 		}
 	},
 }
+
+var productCode string
 var productName string
-var code string
 
 func init() {
 	rootCmd.AddCommand(productCmd)
 	addProductCmd.Flags().StringVar(&productName, "p", "", "Name of the product, Human Friendly version")
-	addProductCmd.Flags().StringVar(&code, "c", "", "quick reference code for the product, machine friendly or easy to type")
+	addProductCmd.Flags().StringVar(&productCode, "c", "", "quick reference code for the product, machine friendly or easy to type")
 	addProductCmd.MarkFlagRequired("p")
 	addProductCmd.MarkFlagRequired("c")
 	productCmd.AddCommand(listProductCmd)

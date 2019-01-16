@@ -35,15 +35,23 @@ to quickly create a Cobra application.`,
 		fmt.Println("item called")
 	},
 }
-var productCode string
-var serialID int
-var status common.ItemStatus
-
+var itemStatus int
 func init() {
+
 	rootCmd.AddCommand(itemCmd)
 	itemCmd.AddCommand(addItemCmd)
 	itemCmd.AddCommand(listItemCmd)
 	addItemCmd.Flags().StringVar(&productCode, "p", "", "serial/sku number of the product")
+	addItemCmd.Flags().IntVar(&itemStatus, "s", 0, `status code of the product. 
+		\t\t\t\t\t\t\t Code 0 means the item is still availabeli\n
+		\t\t\t\t\t\t\t Code 1 means the item is reserved for an order \n
+		\t\t\t\t\t\t\t Code 2 means the item is already shipped \n
+		\t\t\t\t\t\t\t Code 3 means the item is lost or damaged, could be written off.\n`)
+	listItemCmd.Flags().IntVar(&itemStatus, "s", 0, `status code of the product. 
+		\t\t\t\t\t\t\t Code 0 means the item is still availabeli\n
+		\t\t\t\t\t\t\t Code 1 means the item is reserved for an order \n
+		\t\t\t\t\t\t\t Code 2 means the item is already shipped \n
+		`)
 	// Here you will define your flags and configuration settings.
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
