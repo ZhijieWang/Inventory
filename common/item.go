@@ -86,6 +86,8 @@ func findAvailable(db *gorm.DB, pCode string, number int) *[]Item {
 	db.Where(&Item{ProductCode: pCode, Status: Available}).Limit(number).Find(&i)
 	return &i
 }
+
+// ShipItems ships multiple items, given a ProductCode and the numbers. The default date time is Now.
 func ShipItems(db *gorm.DB, pCode string, number int, date time.Time) error {
 	if (date == time.Time{}) {
 		date = time.Now()
