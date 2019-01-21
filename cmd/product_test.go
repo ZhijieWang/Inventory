@@ -56,7 +56,7 @@ func TestProductUniqueness(t *testing.T) {
 	if count != 1 {
 		t.Errorf("Failed to to comply with uniqueness. Message: %+v", err)
 	}
-	defer db.Close()
+	after(db)
 }
 func after(db *gorm.DB) {
 	// if err != nil {
