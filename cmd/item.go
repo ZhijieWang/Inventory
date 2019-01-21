@@ -36,6 +36,7 @@ to quickly create a Cobra application.`,
 	},
 }
 var itemStatus int
+
 func init() {
 
 	rootCmd.AddCommand(itemCmd)

@@ -47,7 +47,7 @@ func TestAddItem(t *testing.T) {
 	if count != 0 {
 		t.Errorf("Database Not clean. Message %+v", err)
 	}
-	err := common.AddItem(db, "A", common.ItemStatus(0))
+	err := common.AddItem(db, "A", int64(0), common.ItemStatus(0))
 	if err != nil {
 		t.Errorf("Insertion error %+v", err)
 	}
@@ -64,7 +64,7 @@ func TestAddItems(t *testing.T) {
 		t.Errorf("Database not clean. message %+v", db.Error)
 	}
 
-	common.AddItems(db, "A", 10)
+	common.AddItems(db, "A", int64(5), 10)
 	db.Model(&common.Item{}).Count(&count)
 	if count != 10 {
 		t.Error(fmt.Sprintf("Insertin of 10 items failed %+v", db.Error))
@@ -79,7 +79,7 @@ func TestShipItemWhenThereIsNoItem(t *testing.T) {
 func TestShipItemSuccess(t *testing.T) {
 	db = before()
 	defer after(db)
-	common.AddItems(db, "A", 1)
+	common.AddItems(db, "A", int64(10), 1)
 	err := common.ShipItem(db, "A", time.Time{})
 	if err != nil {
 		t.Errorf("Operation failed with %+v", err)
@@ -93,23 +93,36 @@ func TestShipItemSuccess(t *testing.T) {
 func TestBulkShipItemSuccess(t *testing.T) {
 	db = before()
 	defer after(db)
-	common.AddItems(db, "A", 10)
+	common.AddItems(db, "A", 5, 10)
 	err := common.ShipItems(db, "A", 10, time.Now())
+	var i int
 	if err != nil {
 		t.Errorf("Error during operation %+v", err)
-	}
-	var a []common.Item
-	var i int
-	db.Where(&common.Item{Status: common.Shipped}).Find(&a)
-	if db.Error != nil {
-		t.Errorf("Operation error %+v", err)
 	}
 	db.Model(&common.Item{}).Where(&common.Item{ProductCode: "A", Status: common.Shipped}).Count(&i)
 	if db.Error != nil {
 		t.Errorf("Operation error %+v", err)
 	}
 	if i != 10 {
-		t.Errorf("Operation success, but the amount of shipped in db does not match")
+		t.Errorf("Operation success, but the amount of shipped in db does not match. Expected 10, actual %d", i)
+	}
+}
+func TestCostOfGoodsCalculation(t *testing.T) {
+	db = before()
+	defer after(db)
+	err := common.AddItems(db, "A", 5, 10)
+
+	if err != nil {
+		t.Errorf("Error during operation %+v", err)
+	}
+	err = common.ShipItems(db, "A", 10, time.Now())
+	var r []common.Item
+
+	db.Model(&common.Item{}).Find(&r)
+	t.Logf("%+v \n", r)
+	result := common.CostOfGoodsSold(db, time.Now().AddDate(0, 0, -2))
+	if result != 50 {
+		t.Errorf("Expected Cost of Goods Sold for 10 units of $5 is $50, actually is %v", result)
 	}
 }
 func after(db *gorm.DB) {
