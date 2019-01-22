@@ -10,3 +10,15 @@ type Product struct {
 	Code     string `gorm:"unique;not null"`
 	NickName string `gorm:"unique;not null"`
 }
+
+func ListProuct(db *gorm.DB) *[]Product {
+	res := []Product{}
+	db.Find(&res)
+	return &res
+}
+
+func AddProduct(db *gorm.DB, pName string, code string) error {
+	db.Create(&Product{NickName: pName, Code: code})
+	return db.Error
+
+}
