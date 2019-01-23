@@ -50,7 +50,7 @@ var addProductCmd = &cobra.Command{
 		fmt.Println("Add product called")
 		db = before()
 		defer db.Close()
-		db.Create(&common.Product{NickName: productName, Code: productCode})
+		common.AddProduct(db, productName, productCode)
 	},
 }
 
@@ -62,9 +62,8 @@ var listProductCmd = &cobra.Command{
 		fmt.Println("List product called")
 		db = before()
 		defer db.Close()
-		res := []common.Product{}
-		db.Find(&res)
-		for _, i := range res {
+		res := common.ListProuct(db)
+		for _, i := range *res {
 			fmt.Printf("%+v\n", i)
 		}
 	},

@@ -9,16 +9,24 @@ type Product struct {
 	gorm.Model
 	Code     string `gorm:"unique;not null"`
 	NickName string `gorm:"unique;not null"`
+	Items    []Item `gorm:"foreignkey:ProductCode"`
 }
 
-func ListProuct(db *gorm.DB) *[]Product {
+func (db *Inventory) ListProduct() *[]Product {
 	res := []Product{}
 	db.Find(&res)
 	return &res
 }
 
-func AddProduct(db *gorm.DB, pName string, code string) error {
+func (db *Inventory) AddProduct(pName string, code string) error {
 	db.Create(&Product{NickName: pName, Code: code})
 	return db.Error
 
+}
+func (db *Inventory) ListInventory(pCode string) *[]Item {
+	p := Product{Code: pCode}
+	var i *[]Item
+
+	db.Model(&p).Related(i)
+	return i
 }

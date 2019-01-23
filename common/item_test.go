@@ -15,30 +15,15 @@ package common_test
 
 import (
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
-	"github.com/jinzhu/gorm"
 	// import sqlite for cotntext only
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/zhijiewang/Inventory/common"
 	"github.com/zhijiewang/Inventory/helper"
 )
 
-var db *gorm.DB
-var err error
-
-func before() *gorm.DB {
-	os.Remove("/tmp/test.db")
-	db, err = gorm.Open("sqlite3", "/tmp/test.db")
-	if err != nil {
-		panic(fmt.Sprintf("failed to connect database %+v", err))
-	}
-	db.AutoMigrate(common.Product{}, common.Item{})
-	db.LogMode(true)
-	return db
-}
 func TestAddItem(t *testing.T) {
 	db = before()
 	defer after(db)
@@ -47,7 +32,7 @@ func TestAddItem(t *testing.T) {
 	if count != 0 {
 		t.Errorf("Database Not clean. Message %+v", err)
 	}
-	err := common.AddItem(db, "A", int64(0), common.ItemStatus(0))
+	err := db.AddItem("A", int64(0), common.ItemStatus(0))
 	if err != nil {
 		t.Errorf("Insertion error %+v", err)
 	}
@@ -64,7 +49,7 @@ func TestAddItems(t *testing.T) {
 		t.Errorf("Database not clean. message %+v", db.Error)
 	}
 
-	common.AddItems(db, "A", int64(5), 10)
+	db.AddItems("A", int64(5), 10)
 	db.Model(&common.Item{}).Count(&count)
 	if count != 10 {
 		t.Error(fmt.Sprintf("Insertin of 10 items failed %+v", db.Error))
@@ -73,14 +58,14 @@ func TestAddItems(t *testing.T) {
 }
 func TestShipItemWhenThereIsNoItem(t *testing.T) {
 	db = before()
-	helper.Assert(t, common.ShipItem(db, "A", time.Time{}) != nil, "Failed to raise Error when shipping item but no item availanle in DB")
+	helper.Assert(t, db.ShipItem("A", time.Time{}) != nil, "Failed to raise Error when shipping item but no item availanle in DB")
 	after(db)
 }
 func TestShipItemSuccess(t *testing.T) {
 	db = before()
 	defer after(db)
-	common.AddItems(db, "A", int64(10), 1)
-	err := common.ShipItem(db, "A", time.Time{})
+	db.AddItems("A", int64(10), 1)
+	err := db.ShipItem("A", time.Time{})
 	if err != nil {
 		t.Errorf("Operation failed with %+v", err)
 	}
@@ -93,8 +78,8 @@ func TestShipItemSuccess(t *testing.T) {
 func TestBulkShipItemSuccess(t *testing.T) {
 	db = before()
 	defer after(db)
-	common.AddItems(db, "A", 5, 10)
-	err := common.ShipItems(db, "A", 10, time.Now())
+	db.AddItems("A", 5, 10)
+	err := db.ShipItems("A", 10, time.Now())
 	var i int
 	if err != nil {
 		t.Errorf("Error during operation %+v", err)
@@ -110,22 +95,18 @@ func TestBulkShipItemSuccess(t *testing.T) {
 func TestCostOfGoodsCalculation(t *testing.T) {
 	db = before()
 	defer after(db)
-	err := common.AddItems(db, "A", 5, 10)
+	err := db.AddItems("A", 5, 10)
 
 	if err != nil {
 		t.Errorf("Error during operation %+v", err)
 	}
-	err = common.ShipItems(db, "A", 10, time.Now())
+	err = db.ShipItems("A", 10, time.Now())
 	var r []common.Item
 
 	db.Model(&common.Item{}).Find(&r)
 	t.Logf("%+v \n", r)
-	result := common.CostOfGoodsSold(db, time.Now().AddDate(0, 0, -2))
+	result := db.CostOfGoodsSold(time.Now().AddDate(0, 0, -2))
 	if result != 50 {
 		t.Errorf("Expected Cost of Goods Sold for 10 units of $5 is $50, actually is %v", result)
 	}
-}
-func after(db *gorm.DB) {
-	defer os.Remove("/tmp/test.db")
-	db.Close()
 }

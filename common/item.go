@@ -61,7 +61,7 @@ func (u ItemStatus) Value() (driver.Value, error) {
 // argument db points to a db connection, the argument pCode points to a
 // productCode, should be randomly generated, either UUID or user defined, the
 // status argument is the enumeration represent item status.
-func AddItem(db *gorm.DB, pCode string, cost int64, status ItemStatus) error {
+func (db *Inventory) AddItem(pCode string, cost int64, status ItemStatus) error {
 	return db.Create(&Item{Status: status, ProductCode: pCode, UnitCost: cost}).Error
 }
 
@@ -69,7 +69,7 @@ func AddItem(db *gorm.DB, pCode string, cost int64, status ItemStatus) error {
 // serial number is generated automatically. This operation does not check
 // whether the item is already in the database or not. This operation implies
 // bulk intake of product, thus all item status will set to default Availabel
-func AddItems(db *gorm.DB, pCode string, cost int64, num int) error {
+func (db *Inventory) AddItems(pCode string, cost int64, num int) error {
 	for i := 0; i < num; i += 1 {
 		db.Create(&Item{Status: Available, ProductCode: pCode, UnitCost: cost})
 	}
@@ -77,12 +77,12 @@ func AddItems(db *gorm.DB, pCode string, cost int64, num int) error {
 }
 
 // ShipItem mark item as shipped and shipped date as given date
-func ShipItem(db *gorm.DB, pCode string, date time.Time) error {
+func (db *Inventory) ShipItem(pCode string, date time.Time) error {
 	if (date == time.Time{}) {
 		date = time.Now()
 	}
 	var i *[]Item
-	i = findAvailable(db, pCode, 1)
+	i = db.findAvailable(pCode, 1)
 	if len(*i) == 0 {
 		return error(fmt.Errorf("Inventory Empty, No Available Item"))
 	}
@@ -93,7 +93,7 @@ func ShipItem(db *gorm.DB, pCode string, date time.Time) error {
 //findAvailable performs query to read available items from the inventory.
 //given Gorm does not throw error when performing certain invalid query, the
 //result needs to be campared to nil
-func findAvailable(db *gorm.DB, pCode string, number int) *[]Item {
+func (db *Inventory) findAvailable(pCode string, number int) *[]Item {
 	var i []Item
 	db.Where(&Item{ProductCode: pCode, Status: Available}).Limit(number).Find(&i)
 	return &i
@@ -101,11 +101,11 @@ func findAvailable(db *gorm.DB, pCode string, number int) *[]Item {
 
 // ShipItems ships multiple items, given a ProductCode and the numbers. The
 // default date time is Now.
-func ShipItems(db *gorm.DB, pCode string, number int, date time.Time) error {
+func (db *Inventory) ShipItems(pCode string, number int, date time.Time) error {
 	if (date == time.Time{}) {
 		date = time.Now()
 	}
-	i := *findAvailable(db, pCode, number)
+	i := *db.findAvailable(pCode, number)
 	if len(i) != number {
 		return error(fmt.Errorf("Not enough item to fulfill the requeste. Requested %d, available %d", number, len(i)))
 	}
@@ -117,7 +117,7 @@ func ShipItems(db *gorm.DB, pCode string, number int, date time.Time) error {
 // other).  the parameter month indicates the first day of the month of
 // interest.
 
-func CostOfGoodsSold(db *gorm.DB, month time.Time) int {
+func (db *Inventory) CostOfGoodsSold(month time.Time) int {
 	end := month.AddDate(0, 1, 0)
 	type Result struct {
 		Total int
