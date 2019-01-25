@@ -69,9 +69,8 @@ var addItemCmd = &cobra.Command{
 	Long:  "A long descrition",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Add item called")
-		db = before()
-		defer db.Close()
-		db.Create(&common.Item{})
+		db = common.OpenInventory("")
+		db.AddItem(productCode, int64(1), common.ItemStatus(itemStatus))
 	},
 }
 var listItemCmd = &cobra.Command{
@@ -80,7 +79,10 @@ var listItemCmd = &cobra.Command{
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("List item called")
-		db = before()
-		defer db.Close()
+		db = common.OpenInventory("")
+		res := db.ListProduct()
+		for a := range *res {
+			fmt.Printf("%+v\n", a)
+		}
 	},
 }

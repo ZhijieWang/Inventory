@@ -16,7 +16,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
 	"github.com/spf13/cobra"
 	"github.com/zhijiewang/Inventory/common"
 )
@@ -32,25 +31,15 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 }
-
-func before() *gorm.DB {
-	db, err = gorm.Open("sqlite3", "/tmp/test.db")
-	if err != nil {
-		panic("failed to connect database")
-	}
-	db.AutoMigrate(common.Product{}, common.Item{})
-	return db
-}
-
 var addProductCmd = &cobra.Command{
 	Use:   "add",
 	Short: "A brief description of your command",
 	Long:  `A longer description `,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Add product called")
-		db = before()
+		db = common.OpenInventory("")
 		defer db.Close()
-		common.AddProduct(db, productName, productCode)
+		db.AddProduct(productName, productCode)
 	},
 }
 
@@ -60,9 +49,9 @@ var listProductCmd = &cobra.Command{
 	Long:  `Longer`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("List product called")
-		db = before()
+		db = common.OpenInventory("")
 		defer db.Close()
-		res := common.ListProuct(db)
+		res := db.ListProduct()
 		for _, i := range *res {
 			fmt.Printf("%+v\n", i)
 		}
