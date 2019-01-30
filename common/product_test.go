@@ -23,7 +23,7 @@ func TestProductUniqueness(t *testing.T) {
 	db = before()
 	defer after(db)
 	var count int
-	db.Model(&common.Product{}).Count(&count)
+	count = len(*db.ListProduct())
 	if count != 0 {
 		t.Log(count)
 		t.Errorf("Database Not clean. Message: %+v", err)
@@ -35,11 +35,12 @@ func TestProductUniqueness(t *testing.T) {
 			t.Errorf("DB Error %+v", e)
 		}
 	}
-	db.Model(&common.Product{}).Count(&count)
+	count = len(*db.ListProduct())
 	if count != 1 {
 		t.Errorf("Failed to insert query 1. Message: %+v", err)
 	}
 	db.AddProduct("productName", "code")
+	count = len(*db.ListProduct())
 	if count != 1 {
 		t.Errorf("Failed to to comply with uniqueness. Message: %+v", err)
 	}

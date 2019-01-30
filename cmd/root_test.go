@@ -6,7 +6,6 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	before()
 	retCode := m.Run()
 
 	os.Exit(retCode)

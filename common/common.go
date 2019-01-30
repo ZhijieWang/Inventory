@@ -21,6 +21,3 @@ func OpenInventory(path string) *Inventory {
 
 	return &Inventory{db}
 }
-func (db *Inventory) Close() {
-	db.Close()
-}

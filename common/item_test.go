@@ -104,7 +104,7 @@ func TestCostOfGoodsCalculation(t *testing.T) {
 	var r []common.Item
 
 	db.Model(&common.Item{}).Find(&r)
-	t.Logf("%+v \n", r)
+	//t.Logf("%+v \n", r)
 	result := db.CostOfGoodsSold(time.Now().AddDate(0, 0, -2))
 	if result != 50 {
 		t.Errorf("Expected Cost of Goods Sold for 10 units of $5 is $50, actually is %v", result)
