@@ -11,7 +11,7 @@ func OpenInventory(path string) *Inventory {
 	var err error
 	if path == "" {
 
-		db, err = gorm.Open("sqlite3", "/tmp/test.db")
+		db, err = gorm.Open("sqlite3", "../test.db")
 	} else {
 		db, err = gorm.Open("sqlite3", path)
 	}

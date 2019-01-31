@@ -15,7 +15,10 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -32,14 +35,39 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("repl called")
+		end := false
+
+		var err error
+		reader := bufio.NewReader(os.Stdin)
+		for end != true {
+
+			a, _ := reader.ReadString('\n')
+			end, err = parse(strings.Fields(a))
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		if end {
+			return
+		}
 	},
 }
 
-func parse(command string) {
-	
-    
-}
+func parse(input []string) (bool, error) {
+	if input[0] == "exit" {
+		return true, nil
+	}
+	root := GetRootCmd()
+	command, flags, err := root.Find(input)
+	if err != nil {
+		return false, err
+	}
+	command.ParseFlags(flags)
+	command.Run(command, command.Flags().Args())
 
+	return false, nil
+
+}
 func init() {
 	rootCmd.AddCommand(replCmd)
 
