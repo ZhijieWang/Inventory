@@ -43,7 +43,7 @@ const (
 type Item struct {
 	gorm.Model
 	Status      ItemStatus `gorm:"not null;default:0"`
-	ProductCode string     `gorm: "not null"`
+	ProductCode string     `gorm:"not null"`
 	UnitCost    int64
 	ShippedDate time.Time
 }

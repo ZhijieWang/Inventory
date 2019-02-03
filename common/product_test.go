@@ -103,4 +103,11 @@ func TestProductInventoryAssociation(t *testing.T) {
 		t.Errorf("Expecting the association rule to be able to find all associated items.\n Expecting 3 items: \n %+v,\n %+v,\n %+v,\n  Found %d, which are %+v", h, j, k, len(p[0].Items), p[0].Items)
 
 	}
+	var i []common.Item
+	var s = common.Product{Code: "10"}
+	db.Find(&s, common.Product{Code: "10"})
+	db.Model(&s).Related(&i, "items")
+	if len(i) != 3 {
+		t.Errorf("Failed")
+	}
 }

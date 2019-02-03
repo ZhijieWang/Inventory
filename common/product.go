@@ -25,8 +25,8 @@ func (db *Inventory) AddProduct(pName string, code string) error {
 }
 func (db *Inventory) ListInventory(pCode string) *[]Item {
 	p := Product{Code: pCode}
-	var i *[]Item
-
-	db.Model(&p).Related(i)
-	return i
+	var i []Item
+	db.Find(&p)
+	db.Model(&p).Related(&i, "items")
+	return &i
 }

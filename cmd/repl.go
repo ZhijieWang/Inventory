@@ -39,13 +39,18 @@ to quickly create a Cobra application.`,
 
 		var err error
 		reader := bufio.NewReader(os.Stdin)
-		for end != true {
+		var a string
 
-			a, _ := reader.ReadString('\n')
-			end, err = parse(strings.Fields(a))
+		for end != true {
+			fmt.Print(">>")
+			a, _ = reader.ReadString('\n')
+			if a != "\n" {
+				end, err = parse(strings.Fields(a))
+			}
 			if err != nil {
 				fmt.Println(err)
 			}
+			fmt.Println()
 		}
 		if end {
 			return

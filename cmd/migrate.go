@@ -16,7 +16,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
+
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/spf13/cobra"
 	"github.com/zhijiewang/Inventory/common"
@@ -34,7 +34,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("migrate called")
-		db, err := gorm.Open("sqlite3", "../test.db")
+		db = common.OpenInventory("")
 		if err != nil {
 			panic("failed to connect database")
 		}

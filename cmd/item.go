@@ -48,11 +48,15 @@ func init() {
 		\t\t\t\t\t\t\t Code 1 means the item is reserved for an order \n
 		\t\t\t\t\t\t\t Code 2 means the item is already shipped \n
 		\t\t\t\t\t\t\t Code 3 means the item is lost or damaged, could be written off.\n`)
-	listItemCmd.Flags().IntVar(&itemStatus, "s", 0, `status code of the product. 
+
+	listItemCmd.Flags().IntVar(&itemStatus, "s", 2, `status code of the product. 
 		\t\t\t\t\t\t\t Code 0 means the item is still availabeli\n
 		\t\t\t\t\t\t\t Code 1 means the item is reserved for an order \n
 		\t\t\t\t\t\t\t Code 2 means the item is already shipped \n
 		`)
+	listItemCmd.Flags().StringVar(&productCode, "p", "", "serial/sku number of the product")
+	addItemCmd.MarkFlagRequired("p")
+
 	// Here you will define your flags and configuration settings.
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
@@ -70,7 +74,16 @@ var addItemCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Add item called")
 		db = common.OpenInventory("")
-		db.AddItem(productCode, int64(1), common.ItemStatus(itemStatus))
+
+		//		i, err := iota.ParseInt(args[0])
+		//		if err != nil {
+		err := db.AddItem(productCode, int64(1), common.ItemStatus(itemStatus))
+		if err != nil {
+			panic(err)
+		}
+		//		} else {
+		//	db.AddItems(productCode, int64(1), i)
+		//		}
 	},
 }
 var listItemCmd = &cobra.Command{
@@ -80,9 +93,7 @@ var listItemCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("List item called")
 		db = common.OpenInventory("")
-		res := db.ListProduct()
-		for a := range *res {
-			fmt.Printf("%+v\n", a)
-		}
+		res := db.ListInventory(productCode)
+		fmt.Printf("%+v\n", *res)
 	},
 }

@@ -31,10 +31,9 @@ var addProductCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  `A longer description `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Add product called with %s %s\n", productName, productCode)
-		fmt.Printf("%+v\n", args)
 		db = common.OpenInventory("")
 		defer db.Close()
+		fmt.Println(productName, productCode)
 		db.AddProduct(productName, productCode)
 	},
 }

@@ -13,23 +13,15 @@
 // limitations under the License.
 package cmd_test
 
-import (
-	"testing"
-
-	"github.com/zhijiewang/Inventory/cmd"
-)
-
-func TestReplSearch(t *testing.T) {
-	db = before()
-	defer after(db)
-	if len(*db.ListProduct()) != 0 {
-		t.Errorf("Database Not clean, there should be no product in the testing db at the begining.")
-	}
-	root := cmd.GetRootCmd()
-	a, b, _ := root.Find([]string{"product", "add", "--p", "name", "--c", "1000"})
-	a.ParseFlags(b)
-	a.Run(a, a.Flags().Args())
-	if len(*db.ListProduct()) != 1 {
-		t.Errorf("Add Command Failed. Either the command failed to insert into db or the parser failed to call AddProductCommand")
-	}
-}
+// Disabling this test for now. The default db used by test is not the same that used by Commands. Need to figure out how to properly set the db as a config
+//func TestReplSearch(t *testing.T) {
+//	root := cmd.GetRootCmd()
+//	a, b, _ := root.Find([]string{"product", "add", "--p", "name", "--c", "1000"})
+//	a.ParseFlags(b)
+//	a.Run(a, a.Flags().Args())
+//	db = before()
+//	defer after(db)
+//	if len(*db.ListProduct()) != 1 {
+//		t.Errorf("Add Command Failed. Either the command failed to insert into db or the parser failed to call AddProductCommand")
+//	}
+//}

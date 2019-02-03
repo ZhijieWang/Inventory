@@ -33,7 +33,7 @@ func before() *common.Inventory {
 	if err != nil {
 		panic(fmt.Sprintf("failed to connect database %+v", err))
 	}
-	db = &common.Inventory{conn}
+	db = &common.Inventory{DB: conn}
 	db.AutoMigrate(common.Product{}, common.Item{})
 	db.LogMode(true)
 	return db
