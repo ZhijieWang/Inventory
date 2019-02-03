@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/zhijiewang/Inventory/common"
@@ -24,13 +25,8 @@ import (
 // itemCmd represents the item command
 var itemCmd = &cobra.Command{
 	Use:   "item",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "This is the command interface for managing items in inventory",
+	Long:  `A command to manage items in inventory. There are 3 sub commands: Add, Ship, List. See detailed information for each subcommand.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("item called")
 	},
@@ -56,40 +52,31 @@ func init() {
 		`)
 	listItemCmd.Flags().StringVar(&productCode, "p", "", "serial/sku number of the product")
 	addItemCmd.MarkFlagRequired("p")
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// itemCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// itemCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 var addItemCmd = &cobra.Command{
 	Use:   "add",
-	Short: "A brief",
-	Long:  "A long descrition",
+	Short: "This is the command to add item to the inventory.",
+	Long:  "This command is responsible for for adding inventory to the system. You can add single item to the inventory with specific status for inventory reconciliation purpose. Or you can add multiple items of the same product code to the inventory, automatically marked as available for stock up.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Add item called")
 		db = common.OpenInventory("")
 
-		//		i, err := iota.ParseInt(args[0])
-		//		if err != nil {
-		err := db.AddItem(productCode, int64(1), common.ItemStatus(itemStatus))
+		i, err := strconv.Atoi(args[0])
 		if err != nil {
-			panic(err)
+			err = db.AddItem(productCode, int64(1), common.ItemStatus(itemStatus))
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			db.AddItems(productCode, int64(1), i)
 		}
-		//		} else {
-		//	db.AddItems(productCode, int64(1), i)
-		//		}
 	},
 }
 var listItemCmd = &cobra.Command{
 	Use:   "list",
-	Short: "",
-	Long:  "",
+	Short: "This is the command to list items currently in inventory.",
+	Long:  "This command will list all inventory if no product code was specified. If a product code is specified, this command will list all items related to the specific product code.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("List item called")
 		db = common.OpenInventory("")
