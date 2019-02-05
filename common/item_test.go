@@ -32,7 +32,7 @@ func TestAddItem(t *testing.T) {
 	if count != 0 {
 		t.Errorf("Database Not clean. Message %+v", err)
 	}
-	err := db.AddItem("A", int64(0), common.ItemStatus(0))
+	err := db.AddItem("A", 0.0, common.ItemStatus(0))
 	if err != nil {
 		t.Errorf("Insertion error %+v", err)
 	}
@@ -49,7 +49,7 @@ func TestAddItems(t *testing.T) {
 		t.Errorf("Database not clean. message %+v", db.Error)
 	}
 
-	db.AddItems("A", int64(5), 10)
+	db.AddItems("A", 5.0, 10)
 	db.Model(&common.Item{}).Count(&count)
 	if count != 10 {
 		t.Error(fmt.Sprintf("Insertin of 10 items failed %+v", db.Error))
@@ -64,8 +64,8 @@ func TestShipItemWhenThereIsNoItem(t *testing.T) {
 func TestShipItemSuccess(t *testing.T) {
 	db = before()
 	defer after(db)
-	db.AddItems("A", int64(10), 1)
-	db.AddItems("A", int64(10), 1)
+	db.AddItems("A", 10.0, 1)
+	db.AddItems("A", 10.0, 1)
 	err := db.ShipItem("A", time.Time{})
 	if err != nil {
 		t.Errorf("Operation failed with %+v", err)

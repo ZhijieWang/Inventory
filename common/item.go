@@ -44,7 +44,7 @@ type Item struct {
 	gorm.Model
 	Status      ItemStatus `gorm:"not null;default:0"`
 	ProductCode string     `gorm:"not null"`
-	UnitCost    int64
+	UnitCost    float32
 	ShippedDate time.Time
 }
 
@@ -61,7 +61,7 @@ func (u ItemStatus) Value() (driver.Value, error) {
 // argument db points to a db connection, the argument pCode points to a
 // productCode, should be randomly generated, either UUID or user defined, the
 // status argument is the enumeration represent item status.
-func (db *Inventory) AddItem(pCode string, cost int64, status ItemStatus) error {
+func (db *Inventory) AddItem(pCode string, cost float32, status ItemStatus) error {
 	return db.Create(&Item{Status: status, ProductCode: pCode, UnitCost: cost}).Error
 }
 
@@ -69,7 +69,7 @@ func (db *Inventory) AddItem(pCode string, cost int64, status ItemStatus) error 
 // serial number is generated automatically. This operation does not check
 // whether the item is already in the database or not. This operation implies
 // bulk intake of product, thus all item status will set to default Availabel
-func (db *Inventory) AddItems(pCode string, cost int64, num int) error {
+func (db *Inventory) AddItems(pCode string, cost float32, num int) error {
 	for i := 0; i < num; i += 1 {
 		db.Create(&Item{Status: Available, ProductCode: pCode, UnitCost: cost})
 	}
@@ -83,7 +83,7 @@ func (db *Inventory) ShipItem(pCode string, date time.Time) error {
 	}
 	var i []Item
 	db.findAvailable(pCode, 1, &i)
-	if len(i) == 0 {
+	if (len(i) == 0) || (i[0].Status != Available) {
 		return error(fmt.Errorf("Inventory Empty, No Available Item"))
 	}
 	db.Model(i[0]).Updates(Item{Status: Shipped, ShippedDate: date})

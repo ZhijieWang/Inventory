@@ -34,6 +34,7 @@ var itemCmd = &cobra.Command{
 }
 var itemStatus int
 var shipDate string
+var cost float32
 
 func init() {
 
@@ -44,6 +45,7 @@ func init() {
 		Code 3 means the item is already shipped 
 		Code 4 means the item is lost or damaged, could be written off.`)
 	addItemCmd.MarkFlagRequired("p")
+	addItemCmd.Flags().Float32VarP(&cost, "cost", "c", 1.0, "Average Unit Cost of the Item")
 	shipItemCmd.Flags().StringVar(&shipDate, "d", "", "date of the item shipped. Month-Date-Year format")
 	rootCmd.AddCommand(itemCmd)
 	itemCmd.AddCommand(addItemCmd)
@@ -61,12 +63,12 @@ var addItemCmd = &cobra.Command{
 		if len(args) > 0 {
 			i, err := strconv.Atoi(args[0])
 			if err != nil {
-				err = db.AddItem(productCode, int64(1), common.ItemStatus(itemStatus))
+				err = db.AddItem(productCode, cost, common.ItemStatus(itemStatus))
 				if err != nil {
 					panic(err)
 				}
 			} else {
-				db.AddItems(productCode, int64(1), i)
+				db.AddItems(productCode, cost, i)
 			}
 		}
 	},
@@ -76,7 +78,6 @@ var listItemCmd = &cobra.Command{
 	Short: "This is the command to list items currently in inventory.",
 	Long:  "This command will list all inventory if no product code was specified. If a product code is specified, this command will list all items related to the specific product code.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("List item called")
 		db = common.OpenInventory("")
 		res := *db.ListInventory(productCode)
 		for _, r := range res {
@@ -90,10 +91,12 @@ var shipItemCmd = &cobra.Command{
 	Short: "This item marks items as shiped status.",
 	Long:  "This item marks item as shipped status, for a given product code. The count number option is optional. If the count is not provided, it will default to 1.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Ship item called")
 		db = common.OpenInventory("")
 		defer db.Close()
 		d, _ := time.Parse("01-02-2006", shipDate)
-		db.ShipItem(productCode, d)
+		err = db.ShipItem(productCode, d)
+		if err != nil {
+			fmt.Println(err)
+		}
 	},
 }

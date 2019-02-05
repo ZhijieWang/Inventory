@@ -80,17 +80,17 @@ func TestProductInventoryAssociation(t *testing.T) {
 	h = common.Item{
 		Status:      common.Available,
 		ProductCode: "10",
-		UnitCost:    int64(10),
+		UnitCost:    10.0,
 	}
 	j = common.Item{
 		Status:      common.Available,
 		ProductCode: "10",
-		UnitCost:    int64(10),
+		UnitCost:    10.0,
 	}
 	k = common.Item{
 		Status:      common.Available,
 		ProductCode: "10",
-		UnitCost:    int64(10),
+		UnitCost:    10.,
 	}
 	db.Save(&h)
 	db.Save(&j)
