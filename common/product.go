@@ -1,6 +1,8 @@
 package common
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -26,7 +28,8 @@ func (db *Inventory) AddProduct(pName string, code string) error {
 func (db *Inventory) ListInventory(pCode string) *[]Item {
 	p := Product{Code: pCode}
 	var i []Item
-	db.Find(&p)
+	db.Where("code = ?", pCode).Find(&p)
+	fmt.Println("%+v", p)
 	db.Model(&p).Related(&i, "items")
 	return &i
 }

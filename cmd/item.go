@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/zhijiewang/Inventory/common"
@@ -32,6 +33,7 @@ var itemCmd = &cobra.Command{
 	},
 }
 var itemStatus int
+var shipDate string
 
 func init() {
 
@@ -61,15 +63,16 @@ var addItemCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Add item called")
 		db = common.OpenInventory("")
-
-		i, err := strconv.Atoi(args[0])
-		if err != nil {
-			err = db.AddItem(productCode, int64(1), common.ItemStatus(itemStatus))
+		if len(args) > 0 {
+			i, err := strconv.Atoi(args[0])
 			if err != nil {
-				panic(err)
+				err = db.AddItem(productCode, int64(1), common.ItemStatus(itemStatus))
+				if err != nil {
+					panic(err)
+				}
+			} else {
+				db.AddItems(productCode, int64(1), i)
 			}
-		} else {
-			db.AddItems(productCode, int64(1), i)
 		}
 	},
 }
@@ -82,5 +85,17 @@ var listItemCmd = &cobra.Command{
 		db = common.OpenInventory("")
 		res := db.ListInventory(productCode)
 		fmt.Printf("%+v\n", *res)
+	},
+}
+var shipItemCmd = &cobra.Command{
+	Use:   "ship",
+	Short: "This item marks items as shiped status.",
+	Long:  "This item marks item as shipped status, for a given product code. The count number option is optional. If the count is not provided, it will default to 1.",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Ship item called")
+		db = common.OpenInventory("")
+		defer db.Close()
+		d, _ := time.Parse(time.RFC3339, shipDate)
+		db.ShipItem(productCode, d)
 	},
 }
