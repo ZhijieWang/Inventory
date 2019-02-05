@@ -88,7 +88,10 @@ var listItemCmd = &cobra.Command{
 		fmt.Println("List item called")
 		db = common.OpenInventory("")
 		res := db.ListInventory(productCode)
-		fmt.Printf("%+v\n", *res)
+		for r := range *res {
+
+			fmt.Printf("%+v\n", r)
+		}
 	},
 }
 var shipItemCmd = &cobra.Command{
