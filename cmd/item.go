@@ -38,24 +38,17 @@ var shipDate string
 func init() {
 
 	itemCmd.PersistentFlags().StringVarP(&productCode, "product", "p", "", "serial/sku number of the product")
-	addItemCmd.Flags().IntVar(&itemStatus, "s", 0, `status code of the product. 
-		Code 0 means the item is still available
-		Code 1 means the item is reserved for an order 
-		Code 2 means the item is already shipped 
-		Code 3 means the item is lost or damaged, could be written off.`)
-
-	listItemCmd.Flags().IntVar(&itemStatus, "s", 2, `status code of the product. 
-		Code 0 means the item is still available
-		Code 1 means the item is reserved for an order
-		Code 2 means the item is already shipped
-		`)
+	itemCmd.PersistentFlags().IntVar(&itemStatus, "s", 1, `status code of the product. 
+		Code 1 means the item is still available
+		Code 2 means the item is reserved for an order 
+		Code 3 means the item is already shipped 
+		Code 4 means the item is lost or damaged, could be written off.`)
 	addItemCmd.MarkFlagRequired("p")
 	shipItemCmd.Flags().StringVar(&shipDate, "d", "", "date of the item shipped. Month-Date-Year format")
 	rootCmd.AddCommand(itemCmd)
 	itemCmd.AddCommand(addItemCmd)
 	itemCmd.AddCommand(listItemCmd)
 	itemCmd.AddCommand(shipItemCmd)
-
 }
 
 var addItemCmd = &cobra.Command{

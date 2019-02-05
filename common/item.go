@@ -32,10 +32,10 @@ type ItemStatus int
 // damaged or no longer possible for sale. This can be added to either cost of
 // goods sold or to expense for write off.
 const (
-	Available ItemStatus = 0
-	Reserved             = 1
-	Shipped              = 2
-	Lost                 = 3
+	Available ItemStatus = 1
+	Reserved             = 2
+	Shipped              = 3
+	Lost                 = 4
 )
 
 // Item represent each individual goods to be sold, assume discrete and concrete

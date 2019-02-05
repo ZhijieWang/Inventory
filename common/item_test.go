@@ -80,6 +80,11 @@ func TestShipItemSuccess(t *testing.T) {
 	if len(iList) != 1 {
 		t.Errorf("Failed to ship the correct amount of the item. Expected 1, acutally %d", len(iList))
 	}
+	err = db.ShipItem("A", time.Time{})
+	db.Model(&common.Item{}).Where("Status =?", common.Shipped).Find(&iList)
+	if len(iList) != 2 {
+		t.Errorf("Failed to ship the correcnt amount fo the item. Expected 2 to be shipped after 2 operations, actually %d", len(iList))
+	}
 }
 func TestBulkShipItemSuccess(t *testing.T) {
 	db = before()
