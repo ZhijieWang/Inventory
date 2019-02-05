@@ -1,8 +1,6 @@
 package common
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -29,7 +27,6 @@ func (db *Inventory) ListInventory(pCode string) *[]Item {
 	p := Product{Code: pCode}
 	var i []Item
 	db.Where("code = ?", pCode).Find(&p)
-	fmt.Printf("%+v\n", p)
 	db.Model(&p).Related(&i, "items")
 	return &i
 }

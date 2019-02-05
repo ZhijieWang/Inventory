@@ -37,26 +37,24 @@ var shipDate string
 
 func init() {
 
+	itemCmd.PersistentFlags().StringVarP(&productCode, "product", "p", "", "serial/sku number of the product")
+	addItemCmd.Flags().IntVar(&itemStatus, "s", 0, `status code of the product. 
+		Code 0 means the item is still available
+		Code 1 means the item is reserved for an order 
+		Code 2 means the item is already shipped 
+		Code 3 means the item is lost or damaged, could be written off.`)
+
+	listItemCmd.Flags().IntVar(&itemStatus, "s", 2, `status code of the product. 
+		Code 0 means the item is still available
+		Code 1 means the item is reserved for an order
+		Code 2 means the item is already shipped
+		`)
+	addItemCmd.MarkFlagRequired("p")
+	shipItemCmd.Flags().StringVar(&shipDate, "d", "", "date of the item shipped. Month-Date-Year format")
 	rootCmd.AddCommand(itemCmd)
 	itemCmd.AddCommand(addItemCmd)
 	itemCmd.AddCommand(listItemCmd)
 	itemCmd.AddCommand(shipItemCmd)
-	addItemCmd.Flags().StringVar(&productCode, "p", "", "serial/sku number of the product")
-	addItemCmd.Flags().IntVar(&itemStatus, "s", 0, `status code of the product. 
-		\t\t\t\t\t\t\t Code 0 means the item is still availabeli\n
-		\t\t\t\t\t\t\t Code 1 means the item is reserved for an order \n
-		\t\t\t\t\t\t\t Code 2 means the item is already shipped \n
-		\t\t\t\t\t\t\t Code 3 means the item is lost or damaged, could be written off.\n`)
-
-	listItemCmd.Flags().IntVar(&itemStatus, "s", 2, `status code of the product. 
-		\t\t\t\t\t\t\t Code 0 means the item is still availabeli\n
-		\t\t\t\t\t\t\t Code 1 means the item is reserved for an order \n
-		\t\t\t\t\t\t\t Code 2 means the item is already shipped \n
-		`)
-	listItemCmd.Flags().StringVar(&productCode, "p", "", "serial/sku number of the product")
-	addItemCmd.MarkFlagRequired("p")
-	shipItemCmd.Flags().StringVar(&shipDate, "d", "", "date of the item shipped")
-	shipItemCmd.Flags().StringVar(&productCode, "p", "", "serial/sku number of the product")
 
 }
 
@@ -87,8 +85,8 @@ var listItemCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("List item called")
 		db = common.OpenInventory("")
-		res := db.ListInventory(productCode)
-		for r := range *res {
+		res := *db.ListInventory(productCode)
+		for _, r := range res {
 
 			fmt.Printf("%+v\n", r)
 		}
@@ -102,7 +100,7 @@ var shipItemCmd = &cobra.Command{
 		fmt.Println("Ship item called")
 		db = common.OpenInventory("")
 		defer db.Close()
-		d, _ := time.Parse(time.RFC3339, shipDate)
+		d, _ := time.Parse("01-02-2006", shipDate)
 		db.ShipItem(productCode, d)
 	},
 }
