@@ -40,6 +40,7 @@ func init() {
 	rootCmd.AddCommand(itemCmd)
 	itemCmd.AddCommand(addItemCmd)
 	itemCmd.AddCommand(listItemCmd)
+	itemCmd.AddCommand(shipItemCmd)
 	addItemCmd.Flags().StringVar(&productCode, "p", "", "serial/sku number of the product")
 	addItemCmd.Flags().IntVar(&itemStatus, "s", 0, `status code of the product. 
 		\t\t\t\t\t\t\t Code 0 means the item is still availabeli\n
@@ -54,6 +55,9 @@ func init() {
 		`)
 	listItemCmd.Flags().StringVar(&productCode, "p", "", "serial/sku number of the product")
 	addItemCmd.MarkFlagRequired("p")
+	shipItemCmd.Flags().StringVar(&shipDate, "d", "", "date of the item shipped")
+	shipItemCmd.Flags().StringVar(&productCode, "p", "", "serial/sku number of the product")
+
 }
 
 var addItemCmd = &cobra.Command{

@@ -81,22 +81,20 @@ func (db *Inventory) ShipItem(pCode string, date time.Time) error {
 	if (date == time.Time{}) {
 		date = time.Now()
 	}
-	var i *[]Item
-	i = db.findAvailable(pCode, 1)
-	if len(*i) == 0 {
+	var i []Item
+	db.findAvailable(pCode, 1, &i)
+	if len(i) == 0 {
 		return error(fmt.Errorf("Inventory Empty, No Available Item"))
 	}
-	db.Model(i).Updates(Item{Status: Shipped, ShippedDate: date})
+	db.Model(i[0]).Updates(Item{Status: Shipped, ShippedDate: date})
 	return db.Error
 }
 
 //findAvailable performs query to read available items from the inventory.
 //given Gorm does not throw error when performing certain invalid query, the
 //result needs to be campared to nil
-func (db *Inventory) findAvailable(pCode string, number int) *[]Item {
-	var i []Item
-	db.Where(&Item{ProductCode: pCode, Status: Available}).Limit(number).Find(&i)
-	return &i
+func (db *Inventory) findAvailable(pCode string, number int, i *[]Item) {
+	db.Where(&Item{ProductCode: pCode, Status: Available}).Limit(number).Find(i)
 }
 
 // ShipItems ships multiple items, given a ProductCode and the numbers. The
@@ -105,11 +103,12 @@ func (db *Inventory) ShipItems(pCode string, number int, date time.Time) error {
 	if (date == time.Time{}) {
 		date = time.Now()
 	}
-	i := *db.findAvailable(pCode, number)
+	var i []Item
+	db.findAvailable(pCode, number, &i)
 	if len(i) != number {
 		return error(fmt.Errorf("Not enough item to fulfill the requeste. Requested %d, available %d", number, len(i)))
 	}
-	db.Model(&i).Updates(Item{Status: Shipped, ShippedDate: date})
+	db.Model(&i).Update(Item{Status: Shipped, ShippedDate: date})
 	return db.Error
 }
 

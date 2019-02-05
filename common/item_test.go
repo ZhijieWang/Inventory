@@ -65,6 +65,7 @@ func TestShipItemSuccess(t *testing.T) {
 	db = before()
 	defer after(db)
 	db.AddItems("A", int64(10), 1)
+	db.AddItems("A", int64(10), 1)
 	err := db.ShipItem("A", time.Time{})
 	if err != nil {
 		t.Errorf("Operation failed with %+v", err)
@@ -72,7 +73,12 @@ func TestShipItemSuccess(t *testing.T) {
 	i := &common.Item{}
 	db.First(i)
 	if i.Status != common.Shipped {
-		t.Errorf("Failed to ship item, operation success but database state not updated")
+		t.Error("Failed to ship item, operation success but database state not updated")
+	}
+	var iList []common.Item
+	db.Model(&common.Item{}).Where("Status =?", common.Shipped).Find(&iList)
+	if len(iList) != 1 {
+		t.Errorf("Failed to ship the correct amount of the item. Expected 1, acutally %d", len(iList))
 	}
 }
 func TestBulkShipItemSuccess(t *testing.T) {

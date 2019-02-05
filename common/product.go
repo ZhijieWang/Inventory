@@ -29,7 +29,7 @@ func (db *Inventory) ListInventory(pCode string) *[]Item {
 	p := Product{Code: pCode}
 	var i []Item
 	db.Where("code = ?", pCode).Find(&p)
-	fmt.Println("%+v", p)
+	fmt.Printf("%+v\n", p)
 	db.Model(&p).Related(&i, "items")
 	return &i
 }
